@@ -1,0 +1,11 @@
+[deploy]
+# Restart policy for the single long-polling process.
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[[healthchecks]]
+# The container's only listener is the tiny / health endpoint on $PORT,
+# so probe the TCP port rather than an application path.
+type = "TCP"
+probeIntervalSeconds = 30
+timeoutSeconds = 5
