@@ -38,7 +38,17 @@ from telegram.ext import (
 # Set these in your environment or replace BOT_TOKEN locally with a NEW token.
 # The token previously included in the uploaded file should be revoked in @BotFather.
 BOT_TOKEN = os.getenv("BOT_TOKEN", "PASTE_NEW_BOT_TOKEN_HERE")
-ADMIN_ID = int(os.getenv("ADMIN_ID", "8928341236"))
+
+# Required: no hardcoded fallback. A default admin ID would silently route
+# another operator's admin notifications (orders, receipts, broadcasts) to a
+# stranger's Telegram account, so this must fail loudly when unset.
+_raw_admin_id = os.getenv("ADMIN_ID", "").strip()
+if not _raw_admin_id.isdigit():
+    raise SystemExit(
+        "ADMIN_ID تنظیم نشده. شناسه عددی تلگرام مدیر اصلی را در متغیرهای محیطی "
+        "قرار بده (می‌توانی از @userinfobot یا @getmyid_bot بگیری)."
+    )
+ADMIN_ID = int(_raw_admin_id)
 DB_FILE = (_DATA_DIR := Path(os.getenv("DATA_DIR") or Path(__file__).parent)) / "orders.json"
 MARKET_FILE = _DATA_DIR / "game_account_listings.json"
 SECRETARY_FILE = _DATA_DIR / "secretary_settings.json"
