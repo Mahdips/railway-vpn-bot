@@ -1,7 +1,57 @@
 # نسخه Railway ربات فروش سرویس (Container Edition)
 
-این پوشه نسخه‌ی استقرار ربات روی **Railway** (یا هر PaaS تک‌پورتی) است. کد اصلی
-`( newfile.py` بدون تغییر در منطقbusiness ‌باقی مانده است؛ فقط سه چیز برای محیط
+[![زبان: فارسی](https://img.shields.io/badge/%D8%B2%D8%A8%D8%A7%D9%86-%D9%81%D8%A7%D8%B1%D8%B3%DB%8C-blue)](#%D9%81%D8%A7%D8%B1%D8%B3%DB%8C)
+[![language: English](https://img.shields.io/badge/language-English-blue)](#english)
+
+---
+
+## English
+
+A Telegram bot for selling services (subscriptions, game accounts, virtual
+services) with an admin panel built into the bot: order review, receipt
+approval, broadcast, user management, discount codes, an AI "secretary" for
+customer replies, and a trial-account pool.
+
+This is the **container edition** for Railway and any single-port PaaS. The
+same bot ships as a VPS/systemd edition for a virtual machine — they are
+kept separate on purpose; do not mix their deployment files.
+
+What changed for the container:
+
+1. `BOT_TOKEN` comes from the environment and the process exits with a clear
+   message when it is missing (a container has no interactive console).
+2. A tiny HTTP server runs on `$PORT` so the platform health check passes —
+   the bot is long-polling and opens no port of its own.
+3. Every data file lives under `DATA_DIR` so it can be mounted on a volume.
+   **Without a volume, every redeploy wipes orders, users, and settings.**
+4. `ADMIN_ID` has **no default**. A hardcoded fallback would silently route
+   another operator's order notifications and receipts to a stranger.
+
+### Deploy
+
+1. Create a bot with [@BotFather](https://t.me/BotFather) and copy the token.
+2. Push this folder to a GitHub repo (public or private).
+3. In Railway: **New Project → Deploy from GitHub repo**.
+4. Under **Variables** add:
+   - `BOT_TOKEN` — the token from BotFather
+   - `ADMIN_ID` — the numeric Telegram ID of the primary admin (get it from
+     [@userinfobot](https://t.me/userinfobot)); required, the bot will not
+     start without it
+   - `DATA_DIR` — `/data`
+   - optional: `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL` for the AI
+     secretary
+5. Under **Settings → Volumes** create a volume mounted at `/data`.
+6. When the deploy finishes, the logs should read `Bot is running...`.
+
+If the logs say `ADMIN_ID تنظیم نشده` or `BOT_TOKEN تنظیم نشده`, a required
+variable is missing.
+
+---
+
+## فارسی
+
+این پوشه‌ی استقرار ربات روی **Railway** (یا هر PaaS تک‌پورتی) است. کد اصلی
+`( newfile.py` بدون تغییر در منطقbusiness ‌باقی مانده است؛ فقط چند چیز برای محیط
 کانتینر اضافه/تغییر کرده:
 
 1. `BOT_TOKEN` از متغیرهای محیطی خوانده می‌شود و به جای `input()` تعاملی، در صورت
@@ -10,6 +60,8 @@
    شود؛ ربات polling هیچ پورتی باز نمی‌کند.
 3. تمام فایل‌های داده به مسیر `DATA_DIR` منتقل شده‌اند تا روی یک Volume سوار شوند.
    **بدون این Volume، هر استقرار جدید تمام سفارش‌ها، کاربران و تنظیمات را پاک می‌کند.**
+4. `ADMIN_ID` **پیش‌فرض ندارد**. یک مقدار ثابت باعث می‌شد سفارش‌ها و رسیدهای
+   یک اپراتور دیگر بی‌صدا به حساب تلگرام یک غریبه ارسال شود.
 
 ## فایل‌ها
 
@@ -30,7 +82,7 @@
 3. در Railway: `New Project → Deploy from GitHub repo` → ریپو را انتخاب کنید.
 4. به بخش **Variables** بروید و این‌ها را اضافه کنید:
    - `BOT_TOKEN` = توکن جدید از BotFather
-   - `ADMIN_ID` = شناسه عددی تلگرام ادمین (الان `8928341236` پیش‌فرض است)
+   - `ADMIN_ID` = شناسه عددی تلگرام ادمین (الان پیش‌فرض ندارد؛ باید حتماً تنظیم کنی)
    - `DATA_DIR` = `/data`
    - (اختیاری) `OPENAI_API_KEY`، `OPENAI_BASE_URL`، `OPENAI_MODEL` برای منشی هوش مصنوعی
 5. به بخش **Settings → Volumes** بروید، یک Volume جدید بسازید و مسیر Mount آن را
